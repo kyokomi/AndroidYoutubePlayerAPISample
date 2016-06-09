@@ -1,0 +1,2 @@
+# AndroidYoutubePlayerAPISample
+onBackPressedでonDestoryされてbackした先で動画が再生できない現象のワークアラウンド
