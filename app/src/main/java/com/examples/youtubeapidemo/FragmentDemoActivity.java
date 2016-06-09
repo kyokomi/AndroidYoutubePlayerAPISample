@@ -16,6 +16,7 @@
 
 package com.examples.youtubeapidemo;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -24,6 +25,9 @@ import android.view.View;
 import com.google.android.youtube.player.YouTubeBaseActivity;
 import com.google.android.youtube.player.YouTubePlayer;
 import com.google.android.youtube.player.YouTubePlayerFragment;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A simple YouTube Android API demo application which shows how to create a simple application that
@@ -35,7 +39,15 @@ import com.google.android.youtube.player.YouTubePlayerFragment;
  */
 public class FragmentDemoActivity extends YouTubeFailureRecoveryActivity {
 
-    boolean isBackground = true;
+    static Intent getCallingIntent(Context context,
+                                   ArrayList<String> stackList) {
+        final Intent intent = new Intent(context, FragmentDemoActivity.class);
+        intent.setAction(Intent.ACTION_VIEW);
+        intent.putStringArrayListExtra("stackList", stackList);
+        return intent;
+    }
+
+    private List<String> stackList;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -47,14 +59,29 @@ public class FragmentDemoActivity extends YouTubeFailureRecoveryActivity {
         findViewById(R.id.youtube_fragment_textView).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                isBackground = false;
-                startActivity(new Intent(FragmentDemoActivity.this, PlayerViewDemoActivity.class));
+                stackList.add("nCgQDjiotG0"); // 次のやつ
+                startActivity(getCallingIntent(FragmentDemoActivity.this,
+                    (ArrayList<String>) stackList));
+                finish();
             }
         });
 
-        YouTubePlayerFragment youTubePlayerFragment =
-            (YouTubePlayerFragment) getFragmentManager().findFragmentById(R.id.youtube_fragment);
-        youTubePlayerFragment.initialize(DeveloperKey.DEVELOPER_KEY, this);
+        this.initializeArgs();
+
+        if (savedInstanceState == null) {
+            YouTubePlayerFragment youTubePlayerFragment = YouTubePlayerFragment.newInstance();
+            getFragmentManager().beginTransaction()
+                .add(R.id.youtube_fragment_container, youTubePlayerFragment)
+                .commit();
+            youTubePlayerFragment.initialize(DeveloperKey.DEVELOPER_KEY, this);
+        }
+    }
+
+    private void initializeArgs() {
+        if (getIntent() == null) {
+            throw new IllegalArgumentException("no args video");
+        }
+        this.stackList = getIntent().getStringArrayListExtra("stackList");
     }
 
     @Override
@@ -88,23 +115,10 @@ public class FragmentDemoActivity extends YouTubeFailureRecoveryActivity {
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle bundle) {
-        bundle.putBoolean("hoge", isBackground);
-        super.onSaveInstanceState(bundle);
-    }
-
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-        isBackground = savedInstanceState.getBoolean("hoge");
-    }
-
-    @Override
     public void onInitializationSuccess(YouTubePlayer.Provider provider, YouTubePlayer player,
                                         boolean wasRestored) {
-        if (!wasRestored || !isBackground) {
-            player.cueVideo("nCgQDjiotG0");
-            isBackground = true;
+        if (!wasRestored) {
+            player.cueVideo(stackList.get(stackList.size() - 1));
         }
     }
 
@@ -113,4 +127,15 @@ public class FragmentDemoActivity extends YouTubeFailureRecoveryActivity {
         return (YouTubePlayerFragment) getFragmentManager().findFragmentById(R.id.youtube_fragment);
     }
 
+    @Override
+    public void onBackPressed() {
+        stackList.remove(stackList.size() - 1); // 今表示してるやつを除いて前の画面へ
+        if (stackList.isEmpty()) {
+            super.onBackPressed();
+        } else {
+            startActivity(getCallingIntent(FragmentDemoActivity.this,
+                (ArrayList<String>) stackList));
+            finish();
+        }
+    }
 }

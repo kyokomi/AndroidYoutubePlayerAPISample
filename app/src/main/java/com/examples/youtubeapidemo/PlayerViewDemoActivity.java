@@ -24,6 +24,9 @@ import com.google.android.youtube.player.YouTubeBaseActivity;
 import com.google.android.youtube.player.YouTubePlayer;
 import com.google.android.youtube.player.YouTubePlayerView;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 /**
  * A simple YouTube Android API demo application which shows how to create a simple application that
  * displays a YouTube Video in a {@link YouTubePlayerView}.
@@ -43,7 +46,10 @@ public class PlayerViewDemoActivity extends YouTubeFailureRecoveryActivity {
             @Override
             public void onClick(View v) {
                 isBackground = false;
-                startActivity(new Intent(PlayerViewDemoActivity.this, FragmentDemoActivity.class));
+                startActivity(
+                    FragmentDemoActivity.getCallingIntent(
+                        PlayerViewDemoActivity.this,
+                        new ArrayList<>(Arrays.asList("nCgQDjiotG0"))));
             }
         });
 

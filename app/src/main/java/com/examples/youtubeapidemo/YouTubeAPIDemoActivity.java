@@ -35,6 +35,7 @@ import com.examples.youtubeapidemo.adapter.DemoArrayAdapter;
 import com.examples.youtubeapidemo.adapter.DemoListViewItem;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -94,9 +95,14 @@ public class YouTubeAPIDemoActivity extends Activity implements OnItemClickListe
   public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
     Demo clickedDemo = (Demo) activities.get(position);
 
-    Intent intent = new Intent();
-    intent.setComponent(new ComponentName(getPackageName(), clickedDemo.className));
-    startActivity(intent);
+    if ("com.examples.youtubeapidemo.FragmentDemoActivity".equals(clickedDemo.className)) {
+      startActivity(FragmentDemoActivity.getCallingIntent(
+          this, new ArrayList<>(Arrays.asList("nCgQDjiotG0"))));
+    } else {
+      Intent intent = new Intent();
+      intent.setComponent(new ComponentName(getPackageName(), clickedDemo.className));
+      startActivity(intent);
+    }
   }
 
   private final class Demo implements DemoListViewItem {
